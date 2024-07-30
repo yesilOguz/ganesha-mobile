@@ -8,7 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Health.dart';
 
-const baseUrl = 'http://10.0.2.2:8000'; /* local */
+//const baseUrl = 'http://10.0.2.2:8000'; /* local */
+const baseUrl = 'http://91.132.49.196:5000';
 const modelBaseUrl = '$baseUrl/character/get-model';
 
 

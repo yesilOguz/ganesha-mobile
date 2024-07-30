@@ -6,6 +6,7 @@ import 'package:ganesha/backend/models/auth_models.dart';
 import 'package:ganesha/utils/utilities.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crypto/crypto.dart';
 
 import 'models/user_models.dart';
 
@@ -13,18 +14,14 @@ class Auth{
   static Future<AuthResponse?> login({required String email, required String password}) async{
     String loginUrl = '$baseUrl/user/login';
 
-    LoginModel authData = LoginModel(email, password);
+    LoginModel authData = LoginModel(email, md5.convert(utf8.encode(password)).toString());
     http.Response? response = await Requests.post(url: loginUrl, body: authData, isAccessKeyNecessary: false);
-
-    print(response == null);
-    print(response!.body);
 
     if(response == null){
       return null;
     }
 
     if(response.statusCode == 400 || response.statusCode == 403){
-      print(response.body);
       showMessage(response.body);
     }
     if(response.statusCode != 200) {
@@ -52,7 +49,7 @@ class Auth{
   static Future<AuthResponse?> signUp({required String fullName, required String email, required String password}) async{
     String registerUrl = '$baseUrl/user/register';
 
-    RegisterModel authData = RegisterModel(fullName, email, password);
+    RegisterModel authData = RegisterModel(fullName, email, md5.convert(utf8.encode(password)).toString());
     http.Response? response = await Requests.post(url: registerUrl, body: authData, isAccessKeyNecessary: false);
 
     if(response == null){
