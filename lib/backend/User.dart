@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ganesha/backend/api_configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:crypto/crypto.dart';
 
 import 'models/user_models.dart';
 
@@ -65,7 +66,7 @@ class User{
   static Future<bool> renewPassword(String email, String otpCode, String newPassword) async{
     String renewPasswordUrl = '$baseUrl/user/renew-password/$email/$otpCode';
 
-    RenewPasswordModel renewPasswordModel = RenewPasswordModel(newPassword);
+    RenewPasswordModel renewPasswordModel = RenewPasswordModel(md5.convert(utf8.encode(newPassword)).toString());
     http.Response? response = await Requests.post(url: renewPasswordUrl, body: renewPasswordModel, isAccessKeyNecessary: false);
 
     if(response == null){
