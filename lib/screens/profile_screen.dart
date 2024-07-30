@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:ganesha/backend/Character.dart';
+import 'package:ganesha/backend/Coach.dart';
 import 'package:ganesha/backend/User.dart';
 import 'package:ganesha/backend/models/character_models.dart';
 import 'package:ganesha/backend/models/user_models.dart';
@@ -243,10 +244,27 @@ class ProfileScreenState extends State<ProfileScreen>{
   }
 
   logoutAsync() async{
+    final recorder = GlobalVariable.recorder;
+    if(recorder.isRecording){
+      String? audioFilePath = await recorder.stopRecorder();
+
+      await Coach.proccessAudio(audioFilePath!);
+
+      recorder.closeRecorder();
+    }
+    stopService();
+
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
 
     GlobalVariable.navState.currentState!.pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const WelcomeScreen(),), ModalRoute.withName('/'),);
+  }
+
+  stopService() async{
+    final service = FlutterBackgroundService();
+    if(await service.isRunning()){
+      stopBackgroundService();
+    }
   }
 
   deleteAccount() {
