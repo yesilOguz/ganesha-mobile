@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:ganesha/backend/Character.dart';
 import 'package:ganesha/backend/Coach.dart';
 import 'package:ganesha/backend/User.dart';
@@ -10,12 +9,11 @@ import 'package:ganesha/backend/models/character_models.dart';
 import 'package:ganesha/backend/models/user_models.dart';
 import 'package:ganesha/global_variable.dart';
 import 'package:ganesha/icons/ganesha_icons_icons.dart';
-import 'package:ganesha/screens/home_screen.dart';
 import 'package:ganesha/screens/welcome_screen.dart';
-import 'package:ganesha/service/background_service.dart';
+import 'package:ganesha/service/background_listener.dart';
 import 'package:ganesha/uikit/ui_colors.dart';
 import 'package:ganesha/utils/utilities.dart';
-import 'package:ganesha/utils/widget_utils.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget{
@@ -139,26 +137,19 @@ class ProfileScreenState extends State<ProfileScreen>{
                 children: [
                   const Text('Always Listen', style: TextStyle(color: UiColor.textColor, fontSize: 14, fontWeight: FontWeight.w500),),
                   Switch(value: isMicrophoneOn, onChanged: (value) async{
-                    final service = FlutterBackgroundService();
+                    if (Platform.isAndroid || Platform.isIOS) {
+                      isMicrophoneOn = value;
 
-                    if(!(await service.isRunning()) && value) {
-                      if (Platform.isAndroid || Platform.isIOS) {
-                        isMicrophoneOn = value;
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('microphone', value);
 
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool('microphone', value);
-
-                        if (value) {
-                          startBackgroundService();
-                        } else {
-                          stopBackgroundService();
-                        }
+                      if (value) {
+                        startListener();
                       } else {
-                        showMessage('Your system does not supporting this feature!');
+                        stopRecording();
                       }
                     } else {
-                      isMicrophoneOn = value;
-                      showMessage('Service is running');
+                      showMessage('Your system does not supporting this feature!');
                     }
 
                     setState(() {});
@@ -244,27 +235,21 @@ class ProfileScreenState extends State<ProfileScreen>{
   }
 
   logoutAsync() async{
-    final recorder = GlobalVariable.recorder;
-    if(recorder.isRecording){
-      String? audioFilePath = await recorder.stopRecorder();
+    await stopRecording();
 
-      await Coach.proccessAudio(audioFilePath!);
+    Directory docsPath = await getApplicationDocumentsDirectory();
+    List<FileSystemEntity> files = docsPath.listSync();
 
-      recorder.closeRecorder();
+    for (FileSystemEntity file in files) {
+      if (file.path.endsWith('.m4a')) {
+        file.delete();
+      }
     }
-    stopService();
 
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
 
     GlobalVariable.navState.currentState!.pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const WelcomeScreen(),), ModalRoute.withName('/'),);
-  }
-
-  stopService() async{
-    final service = FlutterBackgroundService();
-    if(await service.isRunning()){
-      stopBackgroundService();
-    }
   }
 
   deleteAccount() {

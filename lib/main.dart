@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:ganesha/screens/admin_home_screen.dart';
 import 'package:ganesha/screens/home_screen.dart';
 import 'package:ganesha/screens/login_screen.dart';
@@ -14,8 +13,8 @@ import 'backend/Health.dart';
 import 'global_variable.dart';
 
 Future<void> main() async {
-  if (Platform.isAndroid || Platform.isIOS) {
-    WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+  if(Platform.isAndroid || Platform.isIOS){
     await initializeService();
   }
 
@@ -86,19 +85,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.detached) {
-      final recorder = GlobalVariable.recorder;
-      if(recorder.isRecording){
-        recorder.stopRecorder();
-        recorder.closeRecorder();
-      }
-      stopService();
-    }
-  }
-
-  stopService() async{
-    final service = FlutterBackgroundService();
-    if(await service.isRunning()){
-      stopBackgroundService();
     }
   }
 

@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:ganesha/backend/Character.dart';
 import 'package:ganesha/backend/Coach.dart';
@@ -11,7 +12,7 @@ import 'package:ganesha/backend/models/character_models.dart';
 import 'package:ganesha/global_variable.dart';
 import 'package:ganesha/icons/ganesha_icons_icons.dart';
 import 'package:ganesha/screens/profile_screen.dart';
-import 'package:ganesha/service/background_service.dart';
+import 'package:ganesha/service/background_listener.dart';
 import 'package:ganesha/uikit/fonts.dart';
 import 'package:ganesha/uikit/ui_colors.dart';
 import 'package:ganesha/utils/permission.dart';
@@ -322,18 +323,14 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void startMicrophoneStuff() async{
-    final service = FlutterBackgroundService();
-
-    if(!(await service.isRunning())) {
-      final prefs = await SharedPreferences.getInstance();
-      bool recordPermission = await requestPermission(Permission.microphone);
-      if(recordPermission && (Platform.isAndroid || Platform.isIOS)){
-        if(prefs.getBool('microphone')!){
-          startBackgroundService();
-        } else {
-          stopBackgroundService();
-        }
+    final prefs = await SharedPreferences.getInstance();
+    bool recordPermission = await requestPermission(Permission.microphone);
+    if(recordPermission && (Platform.isAndroid || Platform.isIOS)){
+      if(!prefs.getBool('microphone')!){
+        return;
       }
+
+      startListener();
     }
   }
 }
