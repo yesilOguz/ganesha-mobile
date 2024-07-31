@@ -99,8 +99,6 @@ Future<void> stopRecording() async {
     await recorder.stopRecorder();
   }
 
-  recorder.closeRecorder();
-
   if(await service.isRunning()){
     stopBackgroundService();
   }

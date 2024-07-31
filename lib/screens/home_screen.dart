@@ -103,7 +103,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   buildBody() {
-    checkTodayAdvice();
+    GlobalVariable.dailyAdviceTimer ??= Timer.periodic(const Duration(minutes: 1), (timer)=>checkTodayAdvice());
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 15),
@@ -158,7 +158,7 @@ class HomeScreenState extends State<HomeScreen> {
                       children: [
                         const SizedBox(),
                         isThereDailyAdvice ? GestureDetector(
-                          onTap: speakDaily(),
+                          onTap: () => speakDaily(),
                           child: Card(
                             color: const Color(0xFFB9CEE0),
                             elevation: 20,

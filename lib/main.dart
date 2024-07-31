@@ -85,6 +85,8 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.detached) {
+      GlobalVariable.dailyAdviceTimer!.cancel();
+      GlobalVariable.dailyAdviceTimer = null;
     }
   }
 
