@@ -45,7 +45,7 @@ checkDaily() async{
   DateTime loginDate = DateTime.fromMillisecondsSinceEpoch(loginDateEpoch);
   DateTime lastTodayAdvice = DateTime.fromMillisecondsSinceEpoch(lastTodayAdviceEpoch);
 
-  if(/*nowDate == loginDate ||*/ nowDate == lastTodayAdvice){
+  if(nowDate == loginDate || nowDate == lastTodayAdvice){
     return;
   }
 
